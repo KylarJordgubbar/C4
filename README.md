@@ -5,3 +5,6 @@ Conceive 4-14
 Design 10-
 Implement 17-27
 operate 28-3
+
+Idea: Pebble machine simulator
+seufzsiuefzobsdf
