@@ -26,13 +26,17 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-   this.load.image('sky', 'assets/sky.png');
-   this.load.image('platform', 'assets/platform.png');
-   this.load.image('ground', 'assets/ground.png');
-   this.load.image('bomb', 'assets/bomb.png');
-   this.load.spritesheet('dude', 'assets/dude.png',
-       { frameWidth: 32, frameHeight: 48 }
-   );
+	this.load.image('sky', 'assets/sky.png');
+	this.load.image('platform', 'assets/platform.png');
+	this.load.image('platformshort', 'assets/platformshort.png');
+	this.load.image('ground', 'assets/ground.png');
+	this.load.image('bomb', 'assets/bomb.png');
+	this.load.spritesheet('king', 'assets/king.png',
+		{ frameWidth: 20, frameHeight: 24 }
+	);
+	this.load.spritesheet('link', 'assets/link.png',
+		{ frameWidth: 20, frameHeight: 24 }
+	);
 }
 
 function create ()
@@ -50,13 +54,15 @@ function create ()
   //  Now let's create some ledges
     platforms.create(600, 400, 'platform');
     platforms.create(50, 250, 'platform');
-    platforms.create(750, 220, 'platform');
-
+    platforms.create(750, 220, 'platformshort');
+	platforms.create(1000, 500, 'platform');
 
 
   // The player and its settings
-    player = this.physics.add.sprite(100, 450, 'dude');
-    player2 = this.physics.add.sprite(400, 450, 'dude');
+    player = this.physics.add.sprite(100, 450, 'king');
+    player2 = this.physics.add.sprite(400, 450, 'link');
+	player.setScale(2);
+	player2.setScale(2);
 
   //  Player physics properties. Give the little guy a slight bounce
 player.setBounce(0.2);
@@ -68,20 +74,20 @@ player2.setCollideWorldBounds(true);
 //  Our player animations, turning, walking left and walking right.
 this.anims.create({
     key: 'left',
-    frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+    frames: this.anims.generateFrameNumbers('king', { start: 1, end: 4 }),
     frameRate: 10,
     repeat: -1
 });
 
 this.anims.create({
     key: 'turn',
-    frames: [ { key: 'dude', frame: 4 } ],
-    frameRate: 20
+    frames: [ { key: 'king', frame: 0 } ],
+    frameRate: 10
 });
 
 this.anims.create({
     key: 'right',
-    frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+    frames: this.anims.generateFrameNumbers('king', { start: 1, end: 4 }),
     frameRate: 10,
     repeat: -1
 });
@@ -93,7 +99,7 @@ this.physics.add.collider(player2, platforms);
 //  Input Events
 
 cursors = this.input.keyboard.createCursorKeys();
-dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+//dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);		FIX THIS
 
 /*bombs = this.physics.add.group();
 bombs.enableBody = true;
@@ -138,11 +144,11 @@ if (cursors.up.isDown && player.body.touching.down)
 {
     player.setVelocityY(-1000);
 }
-if (dKey.isDown) {
+/*if (dKey.isDown) {
   player2.setVelocityX(160);
 
-  player.anims.play('right', true);
-}
+  player.anims.play('right', true);					FIX THIS
+}*/
 //bomber
 
 /*if (game.input.activePointer.isDown) {
