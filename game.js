@@ -3,12 +3,14 @@ var mouseTouchDown = false;
 
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 1400,
+    height: 700,
+	//width: 1920,
+    //height: 1080,
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 1500 },
             debug: false
         }
     },
@@ -24,7 +26,8 @@ var game = new Phaser.Game(config);
 function preload ()
 {
    this.load.image('sky', 'assets/sky.png');
-   this.load.image('ground', 'assets/platform.png');
+   this.load.image('platform', 'assets/platform.png');
+   this.load.image('ground', 'assets/ground.png');
    this.load.image('bomb', 'assets/bomb.png');
    this.load.spritesheet('dude', 'assets/dude.png',
        { frameWidth: 32, frameHeight: 48 }
@@ -33,20 +36,20 @@ function preload ()
 
 function create ()
 {
-  //  A simple background for our game
-  this.add.image(400, 300, 'sky');
+  //  A simple backplatform for our game
+  this.add.image(700, 350, 'sky');
 
-//  The platforms group contains the ground and the 2 ledges we can jump on
+//  The platforms group contains the platform and the 2 ledges we can jump on
   platforms = this.physics.add.staticGroup();
 
-  //  Here we create the ground.
+  //  Here we create the platform.
   //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+    platforms.create(700, (700-30), 'ground').setScale(2).refreshBody();
 
   //  Now let's create some ledges
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+    platforms.create(600, 400, 'platform');
+    platforms.create(50, 250, 'platform');
+    platforms.create(750, 220, 'platform');
 
 
 
@@ -125,7 +128,7 @@ else
 
 if (cursors.up.isDown && player.body.touching.down)
 {
-    player.setVelocityY(-330);
+    player.setVelocityY(-1000);
 }
 
 //bomber
