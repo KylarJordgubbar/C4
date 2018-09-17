@@ -1,5 +1,6 @@
 var bombs;
 var mouseTouchDown = false;
+var dKey;
 
 var config = {
     type: Phaser.AUTO,
@@ -52,10 +53,14 @@ function create ()
 
   // The player and its settings
     player = this.physics.add.sprite(100, 450, 'dude');
+    player2 = this.physics.add.sprite(400, 450, 'dude');
 
   //  Player physics properties. Give the little guy a slight bounce
 player.setBounce(0.2);
 player.setCollideWorldBounds(true);
+
+player2.setBounce(0.2);
+player2.setCollideWorldBounds(true);
 
 //  Our player animations, turning, walking left and walking right.
 this.anims.create({
@@ -80,9 +85,12 @@ this.anims.create({
 
 //Makes sure the player doesn't fall through the platforms
 this.physics.add.collider(player, platforms);
+this.physics.add.collider(player2, platforms);
 
 //  Input Events
+
 cursors = this.input.keyboard.createCursorKeys();
+dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 /*bombs = this.physics.add.group();
 bombs.enableBody = true;
@@ -127,7 +135,11 @@ if (cursors.up.isDown && player.body.touching.down)
 {
     player.setVelocityY(-330);
 }
+if (dKey.isDown) {
+  player2.setVelocityX(160);
 
+  player.anims.play('right', true);
+}
 //bomber
 
 /*if (game.input.activePointer.isDown) {
