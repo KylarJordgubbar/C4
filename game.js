@@ -23,6 +23,8 @@ var config = {
 };
 
 var game = new Phaser.Game(config);
+var speed=300;
+var jumpheight=800;
 
 function preload ()
 {
@@ -99,7 +101,7 @@ this.physics.add.collider(player2, platforms);
 //  Input Events
 
 cursors = this.input.keyboard.createCursorKeys();
-//dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);		FIX THIS
+dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 /*bombs = this.physics.add.group();
 bombs.enableBody = true;
@@ -123,13 +125,13 @@ function update ()
 {
   if (cursors.left.isDown)
 {
-    player.setVelocityX(-160);
+    player.setVelocityX(speed*(-1));
 
     player.anims.play('left', true);
 }
 else if (cursors.right.isDown)
 {
-    player.setVelocityX(160);
+    player.setVelocityX(speed);
 
     player.anims.play('right', true);
 }
@@ -142,13 +144,13 @@ else
 
 if (cursors.up.isDown && player.body.touching.down)
 {
-    player.setVelocityY(-1000);
+    player.setVelocityY(jumpheight*(-1));
 }
-/*if (dKey.isDown) {
+if (dKey.isDown) {
   player2.setVelocityX(160);
 
-  player.anims.play('right', true);					FIX THIS
-}*/
+  player.anims.play('right', true);
+}
 //bomber
 
 /*if (game.input.activePointer.isDown) {
