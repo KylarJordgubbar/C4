@@ -1,6 +1,5 @@
 var bombs;
 var mouseTouchDown = false;
-var dKey;
 
 var config = {
     type: Phaser.AUTO,
@@ -57,7 +56,7 @@ function create ()
     platforms.create(600, 400, 'platform');
     platforms.create(50, 250, 'platform');
     platforms.create(750, 220, 'platformshort');
-	platforms.create(1000, 500, 'platform');
+	  platforms.create(1000, 500, 'platform');
 
 
   // The player and its settings
@@ -94,6 +93,27 @@ this.anims.create({
     repeat: -1
 });
 
+// Player 2 animations
+this.anims.create({
+    key: 'A',
+    frames: this.anims.generateFrameNumbers('link', { start: 1, end: 4 }),
+    frameRate: 10,
+    repeat: -1
+});
+
+this.anims.create({
+    key: 'turn2',
+    frames: [ { key: 'link', frame: 0 } ],
+    frameRate: 10
+});
+
+this.anims.create({
+    key: 'D',
+    frames: this.anims.generateFrameNumbers('link', { start: 1, end: 4 }),
+    frameRate: 10,
+    repeat: -1
+});
+
 //Makes sure the player doesn't fall through the platforms
 this.physics.add.collider(player, platforms);
 this.physics.add.collider(player2, platforms);
@@ -101,8 +121,24 @@ this.physics.add.collider(player2, platforms);
 //  Input Events
 
 cursors = this.input.keyboard.createCursorKeys();
-dKey = this.Input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
+this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+/*if (leftButton.isDown) {
+  player2.setVelocityX(-160);
+  player2.anims.play('left');
+}
+else if (rightButton.isDown) {
+  player2.setVelocityX(160);
+  player2.anims.play('right');
+}
+else {
+  player2.setVelocityX(0);
+  player2.anims.play('turn');
+}*/
 /*bombs = this.physics.add.group();
 bombs.enableBody = true;
 bombs.physicsBodyType = Phaser.Physics.ARCADE;
@@ -123,6 +159,24 @@ bombs.setAll('checkWorldBounds', true);*/
 
 function update ()
 {
+  if (this.keyA.isDown) {
+    player2.setVelocityX(-160);
+
+    player2.anims.play('A', true);
+ }
+ else if (this.keyD.isDown)
+ {
+     player2.setVelocityX(160);
+
+     player2.anims.play('D', true);
+ }
+ else
+ {
+     player2.setVelocityX(0);
+
+     player2.anims.play('turn2');
+ }
+
   if (cursors.left.isDown)
 {
     player.setVelocityX(speed*(-1));
@@ -146,11 +200,11 @@ if (cursors.up.isDown && player.body.touching.down)
 {
     player.setVelocityY(jumpheight*(-1));
 }
-if (dKey.isDown) {
-  player2.setVelocityX(160);
 
-  player.anims.play('right', true);
+if (this.keyW.isDown && player2.body.touching.down) {
+    player2.setVelocityY(-1000);
 }
+
 //bomber
 
 /*if (game.input.activePointer.isDown) {
