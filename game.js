@@ -2,7 +2,7 @@ var bombs;
 var mouseTouchDown = false;
 
 var config = {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     width: 1400,
     height: 700,
 	//width: 1920,
@@ -25,10 +25,15 @@ var game = new Phaser.Game(config);
 var speed=300;
 var jumpheight=800;
 var player1HP=100, player2HP =100;
+var bullets;
+var firedBullet;
+var lastFired = 0
 
 function preload ()
 {
 	this.load.image('sky', 'assets/sky.png');
+	this.load.image('gun', 'assets/gun.png');
+    this.load.image('bullet', 'assets/bullet1.png');
 	this.load.image('platform', 'assets/platform.png');
 	this.load.image('platformshort', 'assets/platformshort.png');
 	this.load.image('ground', 'assets/ground.png');
@@ -65,6 +70,12 @@ function create ()
     player2 = this.physics.add.sprite(400, 450, 'link');
 	player.setScale(2);
 	player2.setScale(2);
+
+	//The gun and its settings
+	gun = this.add.sprite(player.x, player.y, 'gun');
+	gun2 = this.add.sprite(player2.x, player2.y, 'gun');
+	gun.setScale(1.5);
+	gun2.setScale(1.5);
 
   //  Player physics properties. Give the little guy a slight bounce
 	player.setBounce(0.2);
@@ -139,30 +150,74 @@ function create ()
 	this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 	this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 	this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+	//Bullet
+	var Bullet = new Phaser.Class({
+
+        Extends: Phaser.GameObjects.Image,
+
+        initialize:
+
+        function Bullet (scene)
+        {
+            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+			this.speed = Phaser.Math.GetSpeed(400, 1);
+        },
+
+        fire: function (x, y)
+        {
+			this.setPosition(x, y);		
+            this.setActive(true);
+			this.setVisible(true);
+        },
+
+        update: function (time, delta)
+        {
+			this.x += this.speed * delta;		
+			if(this.x < 0)
+			{
+				this.setActive(false);
+				this.setVisible(false);
+			}
+			
+			if (this.x > 1400)
+			{
+				this.setActive(false);
+				this.setVisible(false);
+			}
+        }
+
+    });
+
+    bullets = this.add.group({
+        classType: Bullet,
+        maxSize: 30,
+        runChildUpdate: true
+	});
 }
 
-/*function resetLaser(bomb) {
-	// Destroy the laser
-	bomb.kill();
-}*/
-
-function update ()
+function update (time, delta)
 	{
 	if (this.keyA.isDown) {
     player2.setVelocityX(speed*(-1));
     player2.anims.play('A', true);
 	player2.flipX=true;
+	gun2.flipX=true;
+	gun2.setPosition(player2.x - 23, player2.y + 5);
 	}
 	else if (this.keyD.isDown)
 	{
     player2.setVelocityX(speed);
     player2.anims.play('D', true);
 	player2.flipX=false;
+	gun2.flipX = false;
+	gun2.setPosition(player2.x + 23, player2.y + 5);
 	}
 	else
 	{
     player2.setVelocityX(0);
-    player2.anims.play('turn2');
+	player2.anims.play('turn2');
+	gun2.setPosition(player2.x + 23, player2.y + 5);
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
@@ -174,21 +229,46 @@ function update ()
     player.setVelocityX(speed*(-1));
     player.anims.play('left', true);
 	player.flipX=true;
+	gun.flipX=true;	
+	gun.setPosition(player.x - 23, player.y + 5);
 	}
 	else if (cursors.right.isDown)
 	{
     player.setVelocityX(speed);
     player.anims.play('right', true);
 	player.flipX=false;
+	gun.flipX = false;
+	gun.setPosition(player.x + 23, player.y + 5);
 	}
 	else
 	{
     player.setVelocityX(0);
-    player.anims.play('turn');
+	player.anims.play('turn');
+	gun.setPosition(player.x + 23, player.y + 5);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
     player.setVelocityY(jumpheight*(-1));
+	}
+
+	//Fire bullet
+	if (cursors.down.isDown && time > lastFired)
+	{
+		firedBullet = bullets.get();
+		if (firedBullet)
+		{
+			firedBullet.fire(player.x + 30, player.y);
+			lastFired = time + 500;
+		}
+	}
+	if (this.keyS.isDown && time > lastFired)
+	{
+		firedBullet = bullets.get();
+		if (firedBullet)
+		{
+			firedBullet.fire(player2.x + 30, player2.y);
+			lastFired = time + 500;
+		}
 	}
 }
 
