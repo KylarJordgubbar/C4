@@ -73,11 +73,12 @@ function create ()
 	player2.setBounce(0.2);
 	player2.setCollideWorldBounds(true);
 
-	//Adding helath info texts
-	player1HPinfo = this.add.text(16, 16, 'HP:'+player1HP+'/120', { fontSize: '32px', fill: '#1f7c25' });//
-	player2HPinfo = this.add.text(1180, 16, 'HP:'+player2HP+'/120', { fontSize: '32px', fill: '#5729a0' });
+	//Adding helath info textsHP:'+player1HP+'/120
+	player2HPinfo = this.add.text(16, 16, 'HP:'+player2HP+'/120', { fontSize: '32px', fill: '#1f7c25' });//
+	player1HPinfo = this.add.text(1180, 16, 'HP:'+player1HP+'/120', { fontSize: '32px', fill: '#5729a0' });
 
-	healthPickup = this.physics.add.image((Math.round(Math.random() * 1400-20)+10), 0, 'health');
+	healthPickup = this.physics.add.image((Math.round(Math.random() * 1400-20)+10), -50, 'health');
+	healthPickup.setMaxVelocity(0, 40)//makes it fall slower
 	
 	//
 	this.physics.add.overlap(player, healthPickup, player1HPpickup, null, this);
@@ -195,31 +196,44 @@ function hp(change, plr)
 {
 	if(plr==1)
 	{
-		player1HP=player1HP+change;
+		player1HP+=change;
+		if(player1HP>120)
+		{
+			player1HP-=(player1HP%120)
+		}
 	}
 	else if (plr==2)
 	{
-		player2HP=player2HP+change;
+		player2HP+=change;
+		if(player2HP>120)
+		{
+			player2HP-=(player2HP%120)
+		}
 	}
 	else
 	{
 		return (-1);
 	}
-	return 1;
+	return 0;
 }
 
 function player1HPpickup()
 {
 	hp(20, 1);
-	player2HPinfo.setText('HP:'+player1HP+'/120');
-	healthPickup.disableBody();
+	player1HPinfo.setText('HP:'+player1HP+'/120');
+	HPpickupRespawn();
 }
 
 function player2HPpickup()
 {
 	hp(20, 2);
-	player1HPinfo.setText('HP:'+player2HP+'/120');
-	healthPickup.disableBody(true, true);
+	player2HPinfo.setText('HP:'+player2HP+'/120');
+	HPpickupRespawn();
+}
+
+function HPpickupRespawn()
+{
+	healthPickup.setPosition((Math.round(Math.random() * 1400-20)+10), -150);
 }
 /*function touchDown() {
 	// Set touchDown to true, so we only trigger this once
