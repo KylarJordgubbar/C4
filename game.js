@@ -194,6 +194,7 @@ function create ()
         maxSize: 30,
         runChildUpdate: true
 	});
+	this.physics.add.overlap(player, bullets, player1HPpickup, null, this);
 }
 
 function update (time, delta)
@@ -217,7 +218,8 @@ function update (time, delta)
 	{
     player2.setVelocityX(0);
 	player2.anims.play('turn2');
-	gun2.setPosition(player2.x + 23, player2.y + 5);
+	gun2.setPosition(player2.x -((gun2.flipX-0.5) * 2 * 23), player2.y + 5);
+	
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
@@ -244,7 +246,7 @@ function update (time, delta)
 	{
     player.setVelocityX(0);
 	player.anims.play('turn');
-	gun.setPosition(player.x + 23, player.y + 5);
+	gun.setPosition(player.x -((gun.flipX-0.5) * 2 * 23), player.y + 5);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
