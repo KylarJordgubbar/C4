@@ -1,0 +1,175 @@
+@charset "utf-8";
+
+
+body{
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    display: flex;
+    background-image: url(assets/sky.png);
+
+
+}
+.aside{
+    flex:1.5;
+    height: 40vh;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-top: 50px;
+    display: flex;
+    border-radius: 5px;
+    box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.7), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+
+.wrapper-l{
+    flex:1;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+}
+.wrapper-r{
+    flex:1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+
+}
+p{
+    font-size: 30px;
+    color: white;
+    text-shadow: 2px 2px 4px #000000;
+    margin: 0;
+
+    font-weight: 100;
+    font-family: 'Germania One', cursive;
+}
+
+h1{
+    border:2px solid black;
+    width: 43px;
+    height: 40px;
+    border-radius: 5px;
+    margin: 3px;
+    text-align: center;
+    padding-top: 8px;
+    box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.7), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-family: 'Germania One', cursive;
+
+}
+h2{
+    border:2px solid black;
+    width: 100px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+    padding-top: 8px;
+    box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.7), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-family: 'Germania One', cursive;
+
+}
+
+
+.left{
+    margin-left: 30px;
+}
+.right{
+    margin-right: 30px;
+}
+
+.w-button{
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    
+}
+
+.asd-button{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+
+.u-button{
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.p-button{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+.enter{
+    width: 100%;
+    height: 66%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.enter h1{
+    padding: 20px;
+    font-size: 40px;
+    padding-right: 10px;
+    
+}
+.space{
+    width: 100%;
+    height: 66%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.space h1{
+    font-size: 10px;
+    width: 80%;
+    padding-right: 10px;
+}
+
+.backgrund{
+    min-height: 100vh;
+    flex:2;
+    background-size:cover;
+
+    
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    
+}
+#myBtn{
+    width: 170px;
+    height: 80px;
+    font-size: 30px;
+    background-color:rgba(249,136,102, 0.8) ;
+    border-radius: 10px;
+    box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.7), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border: solid 2px rgba(236, 76, 138, 0.5);
+    font-family: 'Germania One', cursive;
+    color: white;
+    text-shadow: 2px 2px 4px #000000;
+
+    font-weight: 100;
+
+
+
+}
+
+
+
+.backgrund .box section a::first-letter{
+    font-size: 60px;
+    color:#375e97;
+}
+
+.backgrund button:hover{
+    background-color:rgb(249,136,102) ;
+    transform: scale(1.05);
+}
+
