@@ -27,7 +27,7 @@ var jumpheight=800;
 var player1HP=100, player2HP =100;
 var bullets;
 var firedBullet;
-var lastFired = 0
+var lastFired = 0;
 
 function preload ()
 {
@@ -48,12 +48,19 @@ function preload ()
 	this.load.spritesheet('link', 'assets/link.png',
 		{ frameWidth: 20, frameHeight: 24 }
 	);
+
+	this.load.audio('music', 'assets/backgroundSound.mp3');
 }
 
 function create ()
 {
   //  A simple backplatform for our game	(Math.round(Math.random() * 1400-20)+10)
 	this.add.image(700, 350, 'sky');
+
+// A soundtrack which load with the game and plays repeatedly
+	let soundSample = this.sound.add('music');
+	soundSample.loop = true;
+	soundSample.play();
 
 //  The platforms group contains the platform and the 2 ledges we can jump on
 	platforms = this.physics.add.staticGroup();
@@ -232,8 +239,7 @@ function update (time, delta)
 	{
     player2.setVelocityX(0);
 	player2.anims.play('turn2');
-	gun2.setPosition(player2.x -((gun2.flipX-0.5) * 2 * 23), player2.y + 5);
-	
+	gun2.setPosition(player2.x + 23, player2.y + 5);
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
@@ -260,7 +266,7 @@ function update (time, delta)
 	{
     player.setVelocityX(0);
 	player.anims.play('turn');
-	gun.setPosition(player.x -((gun.flipX-0.5) * 2 * 23), player.y + 5);
+	gun.setPosition(player.x + 23, player.y + 5);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
