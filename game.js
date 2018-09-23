@@ -174,7 +174,7 @@ function create ()
 	var Bullet = new Phaser.Class({
 
         //Extends: Phaser.GameObjects.Image,
-		Extends: Phaser.Physics.Arcade.Image,
+		Extends: Phaser.Physics.Arcade.Image, 
 
         initialize:
 
@@ -182,6 +182,7 @@ function create ()
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 			this.speed = Phaser.Math.GetSpeed(400, 1);
+			this.damage = 10;
         },
 
         fire: function (x, y, direction)//direction is +1 for right and -1 for left	
@@ -190,7 +191,6 @@ function create ()
             this.setActive(true);
 			this.setVisible(true);
 			this.speed = Phaser.Math.GetSpeed(direction*400, 1);
-			console.log(direction);
 			this.flipX=(direction/-2+0.5);
         },
 
@@ -207,6 +207,29 @@ function create ()
 			{
 				this.setActive(false);
 				this.setVisible(false);
+			}
+			
+			if (this.x > player.x-20 && //player 1 hit detection
+				this.x < player.x+20 &&
+				this.y < player.y+24 &&
+				this.y > player.y-24)
+			{
+				//hit
+				this.setActive(false);
+				this.setVisible(false);
+				player1HP-=this.damage;
+				player1HPinfo.setText('HP:'+player1HP+'/120');
+			}
+			if (this.x > player2.x-20 && //player 2 hit detection
+				this.x < player2.x+20 &&
+				this.y < player2.y+24 &&
+				this.y > player2.y-24)
+			{
+				//hit
+				this.setActive(false);
+				this.setVisible(false);
+				player2HP-=this.damage;
+				player2HPinfo.setText('HP:'+player2HP+'/120');
 			}
         }
 
