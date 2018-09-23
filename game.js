@@ -39,6 +39,9 @@ function preload ()
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
+	this.load.spritesheet('katana', 'assets/katana.png',
+		{ frameWidth: 26, frameHeight: 26 }
+	);
 	this.load.spritesheet('king', 'assets/king.png',
 		{ frameWidth: 20, frameHeight: 24 }
 	);
@@ -76,6 +79,15 @@ function create ()
 	gun2 = this.add.sprite(player2.x, player2.y, 'gun');
 	gun.setScale(1.5);
 	gun2.setScale(1.5);
+	
+	/* never mind this im just playing with katanas
+	gun.setVisible(false);
+	gun2.setVisible(false);
+
+	//the katana 
+	katana1 = this.add.sprite(player.x, player.y, 'katana').setScale(1.5);
+	katana2 = this.add.sprite(player2.x, player2.y, 'katana').setScale(1.5);
+	*/
 
   //  Player physics properties. Give the little guy a slight bounce
 	player.setBounce(0.2);
@@ -154,7 +166,8 @@ function create ()
 	//Bullet
 	var Bullet = new Phaser.Class({
 
-        Extends: Phaser.GameObjects.Image,
+        //Extends: Phaser.GameObjects.Image,
+		Extends: Phaser.Physics.Arcade.Image,
 
         initialize:
 
@@ -164,11 +177,13 @@ function create ()
 			this.speed = Phaser.Math.GetSpeed(400, 1);
         },
 
-        fire: function (x, y)
+        fire: function (x, y, direction)//direction is +1 for right and -1 for left	
         {
-			this.setPosition(x, y);		
+			this.setPosition(x, y);	
             this.setActive(true);
 			this.setVisible(true);
+			this.speed = Phaser.Math.GetSpeed(direction*400, 1);
+			console.log(direction);
         },
 
         update: function (time, delta)
@@ -194,7 +209,6 @@ function create ()
         maxSize: 30,
         runChildUpdate: true
 	});
-	this.physics.add.overlap(player, bullets, player1HPpickup, null, this);
 }
 
 function update (time, delta)
@@ -259,7 +273,7 @@ function update (time, delta)
 		firedBullet = bullets.get();
 		if (firedBullet)
 		{
-			firedBullet.fire(player.x + 30, player.y);
+			firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2);
 			lastFired = time + 500;
 		}
 	}
@@ -268,9 +282,10 @@ function update (time, delta)
 		firedBullet = bullets.get();
 		if (firedBullet)
 		{
-			firedBullet.fire(player2.x + 30, player2.y);
+			firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2);
 			lastFired = time + 500;
 		}
+		
 	}
 }
 
@@ -317,26 +332,3 @@ function HPpickupRespawn()
 {
 	healthPickup.setPosition((Math.round(Math.random() * 1400-20)+10), -150);
 }
-/*function touchDown() {
-	// Set touchDown to true, so we only trigger this once
-	mouseTouchDown = true;
-	fireLaser();
-}
-
-function touchUp() {
-	// Set touchDown to false, so we can trigger touchDown on the next click
-	mouseTouchDown = false;
-}
-
-function fireLaser() {
-	// Get the first laser that's inactive, by passing 'false' as a parameter
-	var bomb = bombs.getFirstExists(false);
-	if (bomb) {
-		// If we have a laser, set it to the starting position
-		bomb.reset(400, 300 - 20);
-		// Give it a velocity of -500 so it starts shooting
-		bomb.body.velocity.y = -500;
-	}
-
-}
-}*/
