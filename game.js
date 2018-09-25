@@ -27,10 +27,7 @@ var jumpheight=800;
 var player1HP=100, player2HP =100;
 var bullets;
 var firedBullet;
-var lastFired1 = 0;
-var lastFired2 = 0;
-var wepon1=["pistol", "katana"];
-var wepon2=wepon1;
+var lastFired = 0;
 
 function preload ()
 {
@@ -42,9 +39,6 @@ function preload ()
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
-	this.load.spritesheet('katana', 'assets/katana.png',
-		{ frameWidth: 26, frameHeight: 26 }
-	);
 	this.load.spritesheet('king', 'assets/king.png',
 		{ frameWidth: 20, frameHeight: 24 }
 	);
@@ -53,6 +47,7 @@ function preload ()
 	);
 
 	this.load.audio('music', 'assets/backgroundSound.mp3');
+	this.load.audio('sound', 'assets/jump.mp3');
 }
 
 function create ()
@@ -61,27 +56,28 @@ function create ()
 	this.add.image(700, 350, 'sky');
 
 // A soundtrack which load with the game and plays repeatedly
-	let soundSample = this.sound.add('music');
-	soundSample.loop = true;
-	soundSample.play();
+	let soundTrack = this.sound.add('music');
+	soundTrack.loop = true;
+	soundTrack.play();
+
+	let jumpSound = this.sound.add('sound');
 
 //  The platforms group contains the platform and the 2 ledges we can jump on
 	platforms = this.physics.add.staticGroup();
 
   //  Here we create the ground
+  //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
     platforms.create(700, (700-30), 'ground').setScale(2).refreshBody();
 
   //  Now let's create some ledges
-    platforms.create(600, 400, 'platform').refreshBody();
+    platforms.create(600, 400, 'platform');
     platforms.create(50, 250, 'platform');
     platforms.create(750, 220, 'platformshort');
 	platforms.create(1000, 500, 'platform');
 
-	//rotatingPlatform = this.physics.add.image(500, 100, 'health');
-
   // The player and its settings
-    player = this.physics.add.sprite(1300, 450, 'king');
-    player2 = this.physics.add.sprite(100, 450, 'link');
+    player = this.physics.add.sprite(100, 450, 'king');
+    player2 = this.physics.add.sprite(400, 450, 'link');
 	player.setScale(2);
 	player2.setScale(2);
 
@@ -90,16 +86,6 @@ function create ()
 	gun2 = this.add.sprite(player2.x, player2.y, 'gun');
 	gun.setScale(1.5);
 	gun2.setScale(1.5);
-	 
-	gun.setVisible(1);
-	gun2.setVisible(1);
-
-	//the katana 
-	katana1 = this.add.sprite(player.x, player.y, 'katana').setScale(1.5);
-	katana2 = this.add.sprite(player2.x, player2.y, 'katana').setScale(1.5);
-
-	katana1.setVisible(0);
-	katana2.setVisible(0);
 
   //  Player physics properties. Give the little guy a slight bounce
 	player.setBounce(0.2);
@@ -161,20 +147,6 @@ function create ()
 		repeat: -1
 	});
 
-	//katana animation
-	var sa = { key: 'katana', frame: 1 };
-	this.anims.create({
-		key: 'strike',
-		frames: [ sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, { key: 'katana', frame: 0 }  ],
-		//frameRate: 1,
-		duration: 1500
-		//nextTick: 10
-	});
-
-	//makes sure he starts facing the correct way
-	player.flipX=1;
-	gun.flipX=1;
-
 	//Makes sure the player doesn't fall through the platforms
 	this.physics.add.collider(player, platforms);
 	this.physics.add.collider(player2, platforms);
@@ -188,14 +160,11 @@ function create ()
 	this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 	this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
 	this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-	this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-	this.keySpacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 	//Bullet
 	var Bullet = new Phaser.Class({
 
-        //Extends: Phaser.GameObjects.Image,
-		Extends: Phaser.Physics.Arcade.Image, 
+        Extends: Phaser.GameObjects.Image,
 
         initialize:
 
@@ -203,16 +172,13 @@ function create ()
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 			this.speed = Phaser.Math.GetSpeed(400, 1);
-			this.damage = -10;
         },
 
-        fire: function (x, y, direction)//direction is +1 for right and -1 for left	
+        fire: function (x, y)
         {
-			this.setPosition(x, y);	
+			this.setPosition(x, y);		
             this.setActive(true);
 			this.setVisible(true);
-			this.speed = Phaser.Math.GetSpeed(direction*800, 1);
-			this.flipX=(direction/-2+0.5);
         },
 
         update: function (time, delta)
@@ -224,31 +190,10 @@ function create ()
 				this.setVisible(false);
 			}
 			
-			if(this.x > 1400)
+			if (this.x > 1400)
 			{
 				this.setActive(false);
 				this.setVisible(false);
-			}
-			
-			if (this.x > player.x-20 && //player 1 hit detection
-				this.x < player.x+20 &&
-				this.y < player.y+24 &&
-				this.y > player.y-24)
-			{
-				//hit
-				this.setActive(false);
-				this.setVisible(false);
-				hp(this.damage, 1);
-			}
-			if (this.x > player2.x-20 && //player 2 hit detection
-				this.x < player2.x+20 &&
-				this.y < player2.y+24 &&
-				this.y > player2.y-24)
-			{
-				//hit
-				this.setActive(false);
-				this.setVisible(false);
-				hp(this.damage, 2);
 			}
         }
 
@@ -267,33 +212,22 @@ function update (time, delta)
     player2.setVelocityX(speed*(-1));
     player2.anims.play('A', true);
 	player2.flipX=true;
-
 	gun2.flipX=true;
 	gun2.setPosition(player2.x - 23, player2.y + 5);
-
-	katana2.flipX=true;
-	katana2.setPosition(player2.x - 32, player2.y - 0);
 	}
 	else if (this.keyD.isDown)
 	{
     player2.setVelocityX(speed);
     player2.anims.play('D', true);
 	player2.flipX=false;
-
 	gun2.flipX = false;
 	gun2.setPosition(player2.x + 23, player2.y + 5);
-
-	katana2.flipX=false;
-	katana2.setPosition(player2.x + 32, player2.y + 0);
 	}
 	else
 	{
     player2.setVelocityX(0);
 	player2.anims.play('turn2');
-
-	gun2.setPosition(player2.x + (23*(gun2.flipX-0.5) * -2), player2.y + 5);
-
-	katana2.setPosition(player2.x  + (32*(gun2.flipX-0.5) * -2), player2.y + 0);
+	gun2.setPosition(player2.x + 23, player2.y + 5);
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
@@ -305,221 +239,48 @@ function update (time, delta)
     player.setVelocityX(speed*(-1));
     player.anims.play('left', true);
 	player.flipX=true;
-
 	gun.flipX=true;	
 	gun.setPosition(player.x - 23, player.y + 5);
-
-	katana1.flipX=true;
-	katana1.setPosition(player.x - 32, player.y - 0);
 	}
 	else if (cursors.right.isDown)
 	{
     player.setVelocityX(speed);
     player.anims.play('right', true);
 	player.flipX=false;
-
 	gun.flipX = false;
 	gun.setPosition(player.x + 23, player.y + 5);
-
-	katana1.flipX=false;
-	katana1.setPosition(player.x + 32, player.y - 0);
 	}
 	else
 	{
     player.setVelocityX(0);
 	player.anims.play('turn');
-
-	gun.setPosition(player.x + (23*(gun.flipX-0.5) * -2), player.y + 5);
-
-	katana1.setPosition(player.x  + (32*(gun.flipX-0.5) * -2), player.y + 0);
+	gun.setPosition(player.x + 23, player.y + 5);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
-    player.setVelocityY(jumpheight*(-1));
+	player.setVelocityY(jumpheight*(-1));
+
 	}
 
 	//Fire bullet
-	if (this.keyEnter.isDown && time > lastFired1)
-	{	
-		if (gun.visible)
-		{
-			firedBullet = bullets.get();
-			if (firedBullet)
-			{
-				firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2);
-				lastFired1 = time + 500;
-			}
-		}
-		else if (katana1.visible)
-		{
-			katanaStrike(1);
-			lastFired1 = time + 700;
-		}
-	}
-	if (this.keySpacebar.isDown && time > lastFired2)
+	if (cursors.down.isDown && time > lastFired)
 	{
-		if (gun2.visible)
+		firedBullet = bullets.get();
+		if (firedBullet)
 		{
-			firedBullet = bullets.get();
-			if (firedBullet)
-			{
-				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2);
-				lastFired2 = time + 500;
-			}
+			firedBullet.fire(player.x + 30, player.y);
+			lastFired = time + 500;
 		}
-		else if (katana2.visible)
-		{
-			katanaStrike(2);
-			lastFired2 = time + 700;
-		}
-		
 	}
-	
-	//switch wepon
-	if(this.keyS.isDown)
+	if (this.keyS.isDown && time > lastFired)
 	{
-		this.keyS.reset();
-		if(gun2.visible)
+		firedBullet = bullets.get();
+		if (firedBullet)
 		{
-			gun2.setVisible(0);
-			katana2.setVisible(1);
-		}
-		else
-		{
-			gun2.setVisible(1);
-			katana2.setVisible(0);
+			firedBullet.fire(player2.x + 30, player2.y);
+			lastFired = time + 500;
 		}
 	}
-	
-	if(cursors.down.isDown)
-	{
-		cursors.down.reset();
-		if(gun.visible)
-		{
-			gun.setVisible(0);
-			katana1.setVisible(1);
-		}
-		else
-		{
-			gun.setVisible(1);
-			katana1.setVisible(0);
-		}
-	}
-}
-function katanaStrike(striker)//striker=1 if player 1, vice verca
-{
-	var katanaDmg=-35;
-	if(striker==1)
-	{// its player 1
-		if(katana1.anims.isPlaying){return 0}
-		katana1.anims.play("strike", true);
-		if(!gun.flipX)
-		{//right strike
-			if(
-			player2.x-player.x<77 &&
-			player2.x-player.x>0  &&
-			player2.y-player.y<24 &&
-			player2.y-player.y>-24)
-			{//hit
-				hp(katanaDmg, 2);
-			}
-		}
-		else
-		{//left strike
-			if(
-			player.x-player2.x<77 &&
-			player.x-player2.x>0  &&
-			player2.y-player.y<24 &&
-			player2.y-player.y>-24)
-			{//hit
-				
-				hp(katanaDmg, 2);
-			}
-		}
-	}
-	else if(striker==2)
-	{//player 2
-		if(katana2.anims.isPlaying){return 0}
-		katana2.anims.play("strike", true);
-		if(!gun2.flipX)
-		{//right strike
-			console.log("right strike");
-			if(
-			player.x-player2.x<77 &&
-			player.x-player2.x>0  &&
-			player.y-player2.y<24 &&
-			player.y-player2.y>-24)
-			{//hit
-				hp(katanaDmg, 1);
-			}
-		}
-		else
-		{//left strike
-			console.log("left strike");
-			if(
-			player2.x-player.x<77 &&
-			player2.x-player.x>0  &&
-			player.y-player2.y<24 &&
-			player.y-player2.y>-24)
-			{//hit
-				hp(katanaDmg, 1);
-			}
-		}
-
-	}
-}
-//Respawn
-function isAlive(who)
-{
-	if(who==1)
-	{
-		if(player1HP <= 0)
-		{
-		player.setActive(false);
-		player.setVisible(false);
-		gun.setActive(false);
-		gun.setVisible(false);
-		player1Respawn();
-		}
-	}
-	else if(who==2)
-	{
-		if(player2HP <= 0)
-		{
-		player2.setActive(false);
-		player2.setVisible(false);
-		gun2.setActive(false);
-		gun2.setVisible(false);
-		player2Respawn();
-		}
-	}
-}
-
-function player1Respawn()
-{
-	
-	player.setPosition(1300,450);
-	player.setActive(true);
-	player.setVisible(true);
-	gun.setPosition(player.x, player.y);
-	gun.setActive(true);
-	gun.setVisible(true);
-	player1HPinfo.setText('HP: 100/120');
-	player1HP = 100;
-	katana1.visible=0;
-}
-
-function player2Respawn()
-{
-	player2.setPosition(100,450);
-	player2.setActive(true);
-	player2.setVisible(true);
-	gun2.setPosition(player2.x, player2.y);
-	gun2.setActive(true);
-	gun2.setVisible(true);
-	player2HPinfo.setText('HP: 100/120');
-	player2HP = 100;
-	katana2.visible=0;
 }
 
 function hp(change, plr)
@@ -527,7 +288,6 @@ function hp(change, plr)
 	if(plr==1)
 	{
 		player1HP+=change;
-		isAlive(1);
 		if(player1HP>120)
 		{
 			player1HP-=(player1HP%120)
@@ -536,30 +296,29 @@ function hp(change, plr)
 	else if (plr==2)
 	{
 		player2HP+=change;
-		isAlive(2);
 		if(player2HP>120)
 		{
-			player2HP-=(player2HP%120)		
+			player2HP-=(player2HP%120)
 		}
 	}
 	else
 	{
 		return (-1);
 	}
-	player1HPinfo.setText('HP:'+player1HP+'/120');
-	player2HPinfo.setText('HP:'+player2HP+'/120');
 	return 0;
 }
 
 function player1HPpickup()
 {
 	hp(20, 1);
+	player1HPinfo.setText('HP:'+player1HP+'/120');
 	HPpickupRespawn();
 }
 
 function player2HPpickup()
 {
 	hp(20, 2);
+	player2HPinfo.setText('HP:'+player2HP+'/120');
 	HPpickupRespawn();
 }
 
@@ -567,3 +326,26 @@ function HPpickupRespawn()
 {
 	healthPickup.setPosition((Math.round(Math.random() * 1400-20)+10), -150);
 }
+/*function touchDown() {
+	// Set touchDown to true, so we only trigger this once
+	mouseTouchDown = true;
+	fireLaser();
+}
+
+function touchUp() {
+	// Set touchDown to false, so we can trigger touchDown on the next click
+	mouseTouchDown = false;
+}
+
+function fireLaser() {
+	// Get the first laser that's inactive, by passing 'false' as a parameter
+	var bomb = bombs.getFirstExists(false);
+	if (bomb) {
+		// If we have a laser, set it to the starting position
+		bomb.reset(400, 300 - 20);
+		// Give it a velocity of -500 so it starts shooting
+		bomb.body.velocity.y = -500;
+	}
+
+}
+}*/
