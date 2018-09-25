@@ -27,7 +27,8 @@ var jumpheight=800;
 var player1HP=100, player2HP =100;
 var bullets;
 var firedBullet;
-var lastFired = 0;
+var lastFired1 = 0;
+var lastFired2 = 0;
 var wepon1=["pistol", "katana"];
 var wepon2=wepon1;
 
@@ -202,7 +203,7 @@ function create ()
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 			this.speed = Phaser.Math.GetSpeed(400, 1);
-			this.damage = 10;
+			this.damage = -10;
         },
 
         fire: function (x, y, direction)//direction is +1 for right and -1 for left	
@@ -237,16 +238,7 @@ function create ()
 				//hit
 				this.setActive(false);
 				this.setVisible(false);
-				player1HP-=this.damage;
-				player1HPinfo.setText('HP:'+player1HP+'/120');
-				if(player1HP <= 0)
-				{
-					player.setActive(false);
-					player.setVisible(false);
-					gun.setActive(false);
-					gun.setVisible(false);
-					player1Respawn();
-				}
+				hp(this.damage, 1);
 			}
 			if (this.x > player2.x-20 && //player 2 hit detection
 				this.x < player2.x+20 &&
@@ -256,16 +248,7 @@ function create ()
 				//hit
 				this.setActive(false);
 				this.setVisible(false);
-				player2HP-=this.damage;
-				player2HPinfo.setText('HP:'+player2HP+'/120');
-				if(player2HP <= 0)
-				{
-					player2.setActive(false);
-					player2.setVisible(false);
-					gun2.setActive(false);
-					gun2.setVisible(false);
-					player2Respawn();
-				}
+				hp(this.damage, 2);
 			}
         }
 
@@ -356,7 +339,7 @@ function update (time, delta)
 	}
 
 	//Fire bullet
-	if (this.keyEnter.isDown && time > lastFired)
+	if (this.keyEnter.isDown && time > lastFired1)
 	{	
 		if (gun.visible)
 		{
@@ -364,17 +347,16 @@ function update (time, delta)
 			if (firedBullet)
 			{
 				firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2);
-				lastFired = time + 500;
+				lastFired1 = time + 500;
 			}
 		}
 		else if (katana1.visible)
 		{
-			katana1.anims.play("strike", true);
 			katanaStrike(1);
-			lastFired = time + 700;
+			lastFired1 = time + 700;
 		}
 	}
-	if (this.keySpacebar.isDown && time > lastFired)
+	if (this.keySpacebar.isDown && time > lastFired2)
 	{
 		if (gun2.visible)
 		{
@@ -382,14 +364,13 @@ function update (time, delta)
 			if (firedBullet)
 			{
 				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2);
-				lastFired = time + 500;
+				lastFired2 = time + 500;
 			}
 		}
 		else if (katana2.visible)
 		{
-			katana2.anims.play("strike", true);
 			katanaStrike(2);
-			lastFired = time + 700;
+			lastFired2 = time + 700;
 		}
 		
 	}
@@ -427,8 +408,11 @@ function update (time, delta)
 }
 function katanaStrike(striker)//striker=1 if player 1, vice verca
 {
+	var katanaDmg=-35;
 	if(striker==1)
 	{// its player 1
+		if(katana1.anims.isPlaying){return 0}
+		katana1.anims.play("strike", true);
 		if(!gun.flipX)
 		{//right strike
 			if(
@@ -437,7 +421,7 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 			player2.y-player.y<24 &&
 			player2.y-player.y>-24)
 			{//hit
-				hp(-30, 2);
+				hp(katanaDmg, 2);
 			}
 		}
 		else
@@ -449,12 +433,14 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 			player2.y-player.y>-24)
 			{//hit
 				
-				hp(-30, 2);
+				hp(katanaDmg, 2);
 			}
 		}
 	}
 	else if(striker==2)
 	{//player 2
+		if(katana2.anims.isPlaying){return 0}
+		katana2.anims.play("strike", true);
 		if(!gun2.flipX)
 		{//right strike
 			console.log("right strike");
@@ -464,7 +450,7 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 			player.y-player2.y<24 &&
 			player.y-player2.y>-24)
 			{//hit
-				hp(-30, 1);
+				hp(katanaDmg, 1);
 			}
 		}
 		else
@@ -476,15 +462,42 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 			player.y-player2.y<24 &&
 			player.y-player2.y>-24)
 			{//hit
-				hp(-30, 1);
+				hp(katanaDmg, 1);
 			}
 		}
 
 	}
 }
 //Respawn
+function isAlive(who)
+{
+	if(who==1)
+	{
+		if(player1HP <= 0)
+		{
+		player.setActive(false);
+		player.setVisible(false);
+		gun.setActive(false);
+		gun.setVisible(false);
+		player1Respawn();
+		}
+	}
+	else if(who==2)
+	{
+		if(player2HP <= 0)
+		{
+		player2.setActive(false);
+		player2.setVisible(false);
+		gun2.setActive(false);
+		gun2.setVisible(false);
+		player2Respawn();
+		}
+	}
+}
+
 function player1Respawn()
 {
+	
 	player.setPosition(1300,450);
 	player.setActive(true);
 	player.setVisible(true);
@@ -493,7 +506,9 @@ function player1Respawn()
 	gun.setVisible(true);
 	player1HPinfo.setText('HP: 100/120');
 	player1HP = 100;
+	katana1.visible=0;
 }
+
 function player2Respawn()
 {
 	player2.setPosition(100,450);
@@ -504,6 +519,7 @@ function player2Respawn()
 	gun2.setVisible(true);
 	player2HPinfo.setText('HP: 100/120');
 	player2HP = 100;
+	katana2.visible=0;
 }
 
 function hp(change, plr)
@@ -511,6 +527,7 @@ function hp(change, plr)
 	if(plr==1)
 	{
 		player1HP+=change;
+		isAlive(1);
 		if(player1HP>120)
 		{
 			player1HP-=(player1HP%120)
@@ -519,9 +536,10 @@ function hp(change, plr)
 	else if (plr==2)
 	{
 		player2HP+=change;
+		isAlive(2);
 		if(player2HP>120)
 		{
-			player2HP-=(player2HP%120)
+			player2HP-=(player2HP%120)		
 		}
 	}
 	else
