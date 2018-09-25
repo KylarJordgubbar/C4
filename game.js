@@ -170,6 +170,9 @@ function create ()
 		//nextTick: 10
 	});
 
+	//makes sure he starts facing the correct way
+	player.flipX=1;
+	gun.flipX=1;
 
 	//Makes sure the player doesn't fall through the platforms
 	this.physics.add.collider(player, platforms);
