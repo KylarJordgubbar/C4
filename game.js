@@ -27,10 +27,12 @@ var jumpheight=800;
 var player1HP=100, player2HP =100;
 var bullets;
 var firedBullet;
-var lastFired1 = 0;
-var lastFired2 = 0;
-var wepon1=["pistol", "katana"];
-var wepon2=wepon1;
+var lastFired1 = 0, lastFired2 = 0;
+var tinted1=0, tinted2=0;
+var justTinted1=false, justTinted2=false;
+var platformVerticalY=300;
+var move_direction_V=1;
+var move_direction_H=1;
 
 function preload ()
 {
@@ -39,6 +41,7 @@ function preload ()
     this.load.image('bullet', 'assets/bullet1.png');
 	this.load.image('platform', 'assets/platform.png');
 	this.load.image('platformshort', 'assets/platformshort.png');
+	this.load.image('platformtiny', 'assets/platformtiny.png');
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
@@ -57,7 +60,7 @@ function preload ()
 
 function create ()
 {
-  //  A simple backplatform for our game	(Math.round(Math.random() * 1400-20)+10)
+  //  A simple background for our game
 	this.add.image(700, 350, 'sky');
 
 // A soundtrack which load with the game and plays repeatedly
@@ -65,19 +68,19 @@ function create ()
 	soundSample.loop = true;
 	soundSample.play();
 
-//  The platforms group contains the platform and the 2 ledges we can jump on
 	platforms = this.physics.add.staticGroup();
-
-  //  Here we create the ground
     platforms.create(700, (700-30), 'ground').setScale(2).refreshBody();
 
-  //  Now let's create some ledges
-    platforms.create(600, 400, 'platform').refreshBody();
-    platforms.create(50, 250, 'platform');
-    platforms.create(750, 220, 'platformshort');
-	platforms.create(1000, 500, 'platform');
-
-	//rotatingPlatform = this.physics.add.image(500, 100, 'health');
+  //  Now let's create some platforms
+	platforms.create(400, 599, 'platformshort');//verical
+	platforms.create(700, 350, 'platformshort');//horisontal
+    platforms.create(-20, 500, 'platform');
+	platforms.create(-20, 250, 'platform');
+    platforms.create(1000, 450, 'platformshort');
+	platforms.create(1400, 250, 'platformshort');
+	platforms.create(1050, 200, 'platformtiny');
+	platforms.create(750, 200, 'platformtiny');
+	platforms.create(700, 550, 'platformshort');
 
   // The player and its settings
     player = this.physics.add.sprite(1300, 450, 'king');
@@ -85,7 +88,7 @@ function create ()
 	player.setScale(2);
 	player2.setScale(2);
 
-	//The gun and its settings
+	//The guns and its settings
 	gun = this.add.sprite(player.x, player.y, 'gun');
 	gun2 = this.add.sprite(player2.x, player2.y, 'gun');
 	gun.setScale(1.5);
@@ -94,7 +97,7 @@ function create ()
 	gun.setVisible(1);
 	gun2.setVisible(1);
 
-	//the katana 
+	//the katanas
 	katana1 = this.add.sprite(player.x, player.y, 'katana').setScale(1.5);
 	katana2 = this.add.sprite(player2.x, player2.y, 'katana').setScale(1.5);
 
@@ -108,14 +111,13 @@ function create ()
 	player2.setBounce(0.2);
 	player2.setCollideWorldBounds(true);
 
-	//Adding helath info textsHP:'+player1HP+'/120
+	//Adding helath stuff
 	player2HPinfo = this.add.text(16, 16, 'HP:'+player2HP+'/120', { fontSize: '32px', fill: '#1f7c25' });//
 	player1HPinfo = this.add.text(1180, 16, 'HP:'+player1HP+'/120', { fontSize: '32px', fill: '#5729a0' });
 
 	healthPickup = this.physics.add.image((Math.round(Math.random() * 1400-20)+10), -50, 'health');
 	healthPickup.setMaxVelocity(0, 40)//makes it fall slower
 	
-	//
 	this.physics.add.overlap(player, healthPickup, player1HPpickup, null, this);
 	this.physics.add.overlap(player2, healthPickup, player2HPpickup, null, this);
 
@@ -174,8 +176,9 @@ function create ()
 	//makes sure he starts facing the correct way
 	player.flipX=1;
 	gun.flipX=1;
+	katana.flipX=1;
 
-	//Makes sure the player doesn't fall through the platforms
+	//Makes sure the players doesn't fall through the platforms
 	this.physics.add.collider(player, platforms);
 	this.physics.add.collider(player2, platforms);
 	this.physics.add.collider(healthPickup, platforms);
@@ -263,6 +266,58 @@ function create ()
 
 function update (time, delta)
 	{
+	
+	//flash red when hit 
+	if(player.isTinted && !justTinted1)
+	{
+		tinted1=time+100;
+		justTinted1=true;
+	}
+	
+	if(player2.isTinted && !justTinted2)
+	{
+		tinted2=time+100;
+		justTinted2=true;
+	}
+	
+	if(tinted1<time && justTinted1)
+	{
+		player.clearTint();
+		justTinted1=false;
+	}
+	
+		if(tinted2<time && justTinted2)
+	{
+		player2.clearTint();
+		justTinted2=false;
+	}
+		
+	//moving platforms
+	if(platforms.getFirstNth(nth=2, visible=true).y < 100)
+	{//too high up
+		move_direction_V= 1;
+	}
+	else if (platforms.getFirstNth(nth=2, visible=true).y > 550)
+	{// too low
+		move_direction_V= -1;
+	}
+	platforms.getFirstNth(nth=2, visible=true).setPosition(platforms.getFirstNth(nth=2, visible=true).x, platformVerticalY+move_direction_V);
+	platformVerticalY+=move_direction_V;
+	platforms.getFirstNth(nth=2, visible=true).refreshBody();
+	
+	if(platforms.getFirstNth(nth=3, visible=true).x < 100)
+	{//too high up
+		move_direction_H= 1;
+	}
+	else if (platforms.getFirstNth(nth=3, visible=true).x > 1300)
+	{// too low
+		move_direction_H= -1;
+	}
+	platforms.getFirstNth(nth=3, visible=true).setPosition(platforms.getFirstNth(nth=3, visible=true).x+move_direction_H, platforms.getFirstNth(nth=3, visible=true).y);
+	platforms.getFirstNth(nth=3, visible=true).x+=move_direction_H;
+	platforms.getFirstNth(nth=3, visible=true).refreshBody();
+	
+	//key inputs
 	if (this.keyA.isDown) {
     player2.setVelocityX(speed*(-1));
     player2.anims.play('A', true);
@@ -338,7 +393,7 @@ function update (time, delta)
     player.setVelocityY(jumpheight*(-1));
 	}
 
-	//Fire bullet
+	//Attacking
 	if (this.keyEnter.isDown && time > lastFired1)
 	{	
 		if (gun.visible)
@@ -522,32 +577,48 @@ function player2Respawn()
 	katana2.visible=0;
 }
 
-function hp(change, plr)
+function hp(change, who)
 {
-	if(plr==1)
+	if(who==1)
 	{
 		player1HP+=change;
+		if(change<0)
+		{
+			player.setTint(0xff0000);
+		}
+		else
+		{
+			player.setTint(0x5cf442);
+		}
 		isAlive(1);
 		if(player1HP>120)
 		{
 			player1HP-=(player1HP%120)
 		}
+		player1HPinfo.setText('HP:'+player1HP+'/120');
 	}
-	else if (plr==2)
+	else if (who==2)
 	{
 		player2HP+=change;
+		if(change<0)
+		{
+			player2.setTint(0xff0000);
+		}
+		else
+		{
+			player2.setTint(0x5cf442);
+		}
 		isAlive(2);
 		if(player2HP>120)
 		{
 			player2HP-=(player2HP%120)		
 		}
+		player2HPinfo.setText('HP:'+player2HP+'/120');
 	}
 	else
 	{
 		return (-1);
 	}
-	player1HPinfo.setText('HP:'+player1HP+'/120');
-	player2HPinfo.setText('HP:'+player2HP+'/120');
 	return 0;
 }
 
