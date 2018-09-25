@@ -45,7 +45,7 @@ function preload ()
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
-	this.load.spritesheet('katana', 'assets/katana.png',
+		this.load.spritesheet('katana', 'assets/katana.png',
 		{ frameWidth: 26, frameHeight: 26 }
 	);
 	this.load.spritesheet('king', 'assets/king.png',
@@ -56,6 +56,7 @@ function preload ()
 	);
 
 	this.load.audio('music', 'assets/backgroundSound.mp3');
+	this.load.audio('sound', 'assets/jump.mp3');
 }
 
 function create ()
@@ -64,9 +65,11 @@ function create ()
 	this.add.image(700, 350, 'sky');
 
 // A soundtrack which load with the game and plays repeatedly
-	let soundSample = this.sound.add('music');
-	soundSample.loop = true;
-	soundSample.play();
+	let soundTrack = this.sound.add('music');
+	soundTrack.loop = true;
+	soundTrack.play();
+
+	let jumpSound = this.sound.add('sound');
 
 	platforms = this.physics.add.staticGroup();
     platforms.create(700, (700-30), 'ground').setScale(2).refreshBody();
@@ -93,7 +96,7 @@ function create ()
 	gun2 = this.add.sprite(player2.x, player2.y, 'gun');
 	gun.setScale(1.5);
 	gun2.setScale(1.5);
-	 
+
 	gun.setVisible(1);
 	gun2.setVisible(1);
 
@@ -176,9 +179,10 @@ function create ()
 	//makes sure he starts facing the correct way
 	player.flipX=1;
 	gun.flipX=1;
-	katana.flipX=1;
+	katana1.flipX=1;
 
 	//Makes sure the players doesn't fall through the platforms
+
 	this.physics.add.collider(player, platforms);
 	this.physics.add.collider(player2, platforms);
 	this.physics.add.collider(healthPickup, platforms);
@@ -195,10 +199,10 @@ function create ()
 	this.keySpacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 	//Bullet
-	var Bullet = new Phaser.Class({
+	var Bullet = new Phaser.Class(
+	{
 
-        //Extends: Phaser.GameObjects.Image,
-		Extends: Phaser.Physics.Arcade.Image, 
+        Extends: Phaser.Physics.Arcade.Image, 
 
         initialize:
 
@@ -206,16 +210,16 @@ function create ()
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 			this.speed = Phaser.Math.GetSpeed(400, 1);
-			this.damage = -10;
         },
 
-        fire: function (x, y, direction)//direction is +1 for right and -1 for left	
+        fire: function (x, y, direction)
         {
-			this.setPosition(x, y);	
+			this.setPosition(x, y);		
             this.setActive(true);
 			this.setVisible(true);
 			this.speed = Phaser.Math.GetSpeed(direction*800, 1);
 			this.flipX=(direction/-2+0.5);
+			this.damage=-10;
         },
 
         update: function (time, delta)
@@ -227,7 +231,7 @@ function create ()
 				this.setVisible(false);
 			}
 			
-			if(this.x > 1400)
+			if (this.x > 1400)
 			{
 				this.setActive(false);
 				this.setVisible(false);
@@ -265,7 +269,7 @@ function create ()
 }
 
 function update (time, delta)
-	{
+{
 	
 	//flash red when hit 
 	if(player.isTinted && !justTinted1)
@@ -322,10 +326,10 @@ function update (time, delta)
     player2.setVelocityX(speed*(-1));
     player2.anims.play('A', true);
 	player2.flipX=true;
-
+	
 	gun2.flipX=true;
 	gun2.setPosition(player2.x - 23, player2.y + 5);
-
+	
 	katana2.flipX=true;
 	katana2.setPosition(player2.x - 32, player2.y - 0);
 	}
@@ -334,10 +338,10 @@ function update (time, delta)
     player2.setVelocityX(speed);
     player2.anims.play('D', true);
 	player2.flipX=false;
-
+	
 	gun2.flipX = false;
 	gun2.setPosition(player2.x + 23, player2.y + 5);
-
+	
 	katana2.flipX=false;
 	katana2.setPosition(player2.x + 32, player2.y + 0);
 	}
@@ -345,9 +349,8 @@ function update (time, delta)
 	{
     player2.setVelocityX(0);
 	player2.anims.play('turn2');
-
+	
 	gun2.setPosition(player2.x + (23*(gun2.flipX-0.5) * -2), player2.y + 5);
-
 	katana2.setPosition(player2.x  + (32*(gun2.flipX-0.5) * -2), player2.y + 0);
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
@@ -360,10 +363,10 @@ function update (time, delta)
     player.setVelocityX(speed*(-1));
     player.anims.play('left', true);
 	player.flipX=true;
-
+	
 	gun.flipX=true;	
 	gun.setPosition(player.x - 23, player.y + 5);
-
+	
 	katana1.flipX=true;
 	katana1.setPosition(player.x - 32, player.y - 0);
 	}
@@ -372,10 +375,10 @@ function update (time, delta)
     player.setVelocityX(speed);
     player.anims.play('right', true);
 	player.flipX=false;
-
+	
 	gun.flipX = false;
 	gun.setPosition(player.x + 23, player.y + 5);
-
+	
 	katana1.flipX=false;
 	katana1.setPosition(player.x + 32, player.y - 0);
 	}
@@ -383,16 +386,15 @@ function update (time, delta)
 	{
     player.setVelocityX(0);
 	player.anims.play('turn');
-
+	
 	gun.setPosition(player.x + (23*(gun.flipX-0.5) * -2), player.y + 5);
-
 	katana1.setPosition(player.x  + (32*(gun.flipX-0.5) * -2), player.y + 0);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
-    player.setVelocityY(jumpheight*(-1));
+	player.setVelocityY(jumpheight*(-1));
 	}
-
+	
 	//Attacking
 	if (this.keyEnter.isDown && time > lastFired1)
 	{	
@@ -411,6 +413,7 @@ function update (time, delta)
 			lastFired1 = time + 700;
 		}
 	}
+	
 	if (this.keySpacebar.isDown && time > lastFired2)
 	{
 		if (gun2.visible)
@@ -427,7 +430,6 @@ function update (time, delta)
 			katanaStrike(2);
 			lastFired2 = time + 700;
 		}
-		
 	}
 	
 	//switch wepon
@@ -460,7 +462,8 @@ function update (time, delta)
 			katana1.setVisible(0);
 		}
 	}
-}
+} 
+
 function katanaStrike(striker)//striker=1 if player 1, vice verca
 {
 	var katanaDmg=-35;
@@ -520,10 +523,9 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 				hp(katanaDmg, 1);
 			}
 		}
-
 	}
 }
-//Respawn
+
 function isAlive(who)
 {
 	if(who==1)
@@ -581,7 +583,6 @@ function hp(change, who)
 {
 	if(who==1)
 	{
-		player1HP+=change;
 		if(change<0)
 		{
 			player.setTint(0xff0000);
@@ -590,7 +591,10 @@ function hp(change, who)
 		{
 			player.setTint(0x5cf442);
 		}
+		
+		player1HP+=change;
 		isAlive(1);
+		
 		if(player1HP>120)
 		{
 			player1HP-=(player1HP%120)
@@ -599,7 +603,6 @@ function hp(change, who)
 	}
 	else if (who==2)
 	{
-		player2HP+=change;
 		if(change<0)
 		{
 			player2.setTint(0xff0000);
@@ -608,10 +611,13 @@ function hp(change, who)
 		{
 			player2.setTint(0x5cf442);
 		}
+		
+		player2HP+=change;
 		isAlive(2);
+
 		if(player2HP>120)
 		{
-			player2HP-=(player2HP%120)		
+			player2HP-=(player2HP%120)
 		}
 		player2HPinfo.setText('HP:'+player2HP+'/120');
 	}
@@ -625,12 +631,14 @@ function hp(change, who)
 function player1HPpickup()
 {
 	hp(20, 1);
+	player1HPinfo.setText('HP:'+player1HP+'/120');
 	HPpickupRespawn();
 }
 
 function player2HPpickup()
 {
 	hp(20, 2);
+	player2HPinfo.setText('HP:'+player2HP+'/120');
 	HPpickupRespawn();
 }
 
