@@ -79,8 +79,8 @@ function create ()
 	//rotatingPlatform = this.physics.add.image(500, 100, 'health');
 
   // The player and its settings
-    player = this.physics.add.sprite(100, 450, 'king');
-    player2 = this.physics.add.sprite(400, 450, 'link');
+    player = this.physics.add.sprite(1300, 450, 'king');
+    player2 = this.physics.add.sprite(100, 450, 'link');
 	player.setScale(2);
 	player2.setScale(2);
 
@@ -220,7 +220,7 @@ function create ()
 				this.setVisible(false);
 			}
 			
-			if (this.x > 1400)
+			if(this.x > 1400)
 			{
 				this.setActive(false);
 				this.setVisible(false);
@@ -236,6 +236,14 @@ function create ()
 				this.setVisible(false);
 				player1HP-=this.damage;
 				player1HPinfo.setText('HP:'+player1HP+'/120');
+				if(player1HP <= 0)
+				{
+					player.setActive(false);
+					player.setVisible(false);
+					gun.setActive(false);
+					gun.setVisible(false);
+					player1Respawn();
+				}
 			}
 			if (this.x > player2.x-20 && //player 2 hit detection
 				this.x < player2.x+20 &&
@@ -247,6 +255,14 @@ function create ()
 				this.setVisible(false);
 				player2HP-=this.damage;
 				player2HPinfo.setText('HP:'+player2HP+'/120');
+				if(player2HP <= 0)
+				{
+					player2.setActive(false);
+					player2.setVisible(false);
+					gun2.setActive(false);
+					gun2.setVisible(false);
+					player2Respawn();
+				}
 			}
         }
 
@@ -462,6 +478,29 @@ function katanaStrike(striker)//striker=1 if player 1, vice verca
 		}
 
 	}
+}
+//Respawn
+function player1Respawn()
+{
+	player.setPosition(1300,450);
+	player.setActive(true);
+	player.setVisible(true);
+	gun.setPosition(player.x, player.y);
+	gun.setActive(true);
+	gun.setVisible(true);
+	player1HPinfo.setText('HP: 100/120');
+	player1HP = 100;
+}
+function player2Respawn()
+{
+	player2.setPosition(100,450);
+	player2.setActive(true);
+	player2.setVisible(true);
+	gun2.setPosition(player2.x, player2.y);
+	gun2.setActive(true);
+	gun2.setVisible(true);
+	player2HPinfo.setText('HP: 100/120');
+	player2HP = 100;
 }
 
 function hp(change, plr)
