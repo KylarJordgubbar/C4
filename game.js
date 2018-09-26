@@ -42,6 +42,7 @@ function preload ()
 	this.load.image('platform', 'assets/platform.png');
 	this.load.image('platformshort', 'assets/platformshort.png');
 	this.load.image('platformtiny', 'assets/platformtiny.png');
+	this.load.image('clound', 'assets/cloud.png');
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
@@ -76,7 +77,7 @@ function create ()
 
   //  Now let's create some platforms
 	platforms.create(400, 599, 'platformshort');//verical
-	platforms.create(700, 350, 'platformshort');//horisontal
+	platforms.create(700, 350, 'clound');//horisontal
     platforms.create(-20, 500, 'platform');
 	platforms.create(-20, 250, 'platform');
     platforms.create(1000, 450, 'platformshort');
@@ -310,14 +311,17 @@ function update (time, delta)
 	platforms.getFirstNth(nth=2, visible=true).refreshBody();
 	
 	if(platforms.getFirstNth(nth=3, visible=true).x < 100)
-	{//too high up
+	{//too far left
 		move_direction_H= 1;
 	}
 	else if (platforms.getFirstNth(nth=3, visible=true).x > 1300)
-	{// too low
+	{// too right
 		move_direction_H= -1;
 	}
-	platforms.getFirstNth(nth=3, visible=true).setPosition(platforms.getFirstNth(nth=3, visible=true).x+move_direction_H, platforms.getFirstNth(nth=3, visible=true).y);
+	platforms.getFirstNth(nth=3, visible=true).setPosition(
+		platforms.getFirstNth(nth=3, visible=true).x+move_direction_H, 
+		(Math.sin(platforms.getFirstNth(nth=3, visible=true).x/20)*30+350));
+		//platforms.getFirstNth(nth=3, visible=true).y);
 	platforms.getFirstNth(nth=3, visible=true).x+=move_direction_H;
 	platforms.getFirstNth(nth=3, visible=true).refreshBody();
 	
@@ -554,7 +558,6 @@ function isAlive(who)
 
 function player1Respawn()
 {
-	
 	player.setPosition(1300,450);
 	player.setActive(true);
 	player.setVisible(true);
