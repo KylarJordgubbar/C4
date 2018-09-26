@@ -33,7 +33,6 @@ var justTinted1=false, justTinted2=false;
 var platformVerticalY=300;
 var move_direction_V=1;
 var move_direction_H=1;
-var gameOver=false;
 
 function preload ()
 {
@@ -43,11 +42,9 @@ function preload ()
 	this.load.image('platform', 'assets/platform.png');
 	this.load.image('platformshort', 'assets/platformshort.png');
 	this.load.image('platformtiny', 'assets/platformtiny.png');
-	this.load.image('clound', 'assets/cloud.png');
 	this.load.image('ground', 'assets/ground.png');
 	this.load.image('bomb', 'assets/bomb.png');
 	this.load.image('health', 'assets/health.png');
-	this.load.image('end', 'assets/endscreen.png');
 		this.load.spritesheet('katana', 'assets/katana.png',
 		{ frameWidth: 26, frameHeight: 26 }
 	);
@@ -81,7 +78,7 @@ function create ()
 
   //  Now let's create some platforms
 	platforms.create(400, 599, 'platformshort');//verical
-	platforms.create(700, 350, 'clound');//horisontal
+	platforms.create(700, 350, 'platformshort');//horisontal
     platforms.create(-20, 500, 'platform');
 	platforms.create(-20, 250, 'platform');
     platforms.create(1000, 450, 'platformshort');
@@ -125,19 +122,6 @@ function create ()
 
 	healthPickup = this.physics.add.image((Math.round(Math.random() * 1400-20)+10), -50, 'health');
 	healthPickup.setMaxVelocity(0, 40)//makes it fall slower
-	
-	end = this.physics.add.image(700, 350, 'end');
-	end.setMaxVelocity(0,0);
-	end.setVisible(false);
-	
-	endKing = this.physics.add.image(700, 350, 'king').setScale(10);
-	endKing.setMaxVelocity(0,0);
-	endKing.setVisible(false);
-	
-	endLink = this.physics.add.image(700, 350, 'link').setScale(10);
-	endLink.setMaxVelocity(0,0);
-	endLink.setVisible(false);
-	
 	
 	this.physics.add.overlap(player, healthPickup, player1HPpickup, null, this);
 	this.physics.add.overlap(player2, healthPickup, player2HPpickup, null, this);
@@ -190,7 +174,7 @@ function create ()
 		key: 'strike',
 		frames: [ sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, { key: 'katana', frame: 0 }  ],
 		//frameRate: 1,
-		duration: 1400
+		duration: 1500
 		//nextTick: 10
 	});
 
@@ -215,8 +199,7 @@ function create ()
 	this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 	this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 	this.keySpacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-	this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-	
+
 	//Bullet
 	var Bullet = new Phaser.Class(
 	{
@@ -289,19 +272,6 @@ function create ()
 
 function update (time, delta)
 {
-	if(gameOver)
-	{
-		if (this.keyR.isDown)
-		{
-			gameOver=false
-			end.setVisible(false);
-			endLink.setVisible(false);
-			endKing.setVisible(false);
-			player1Respawn();
-			player2Respawn();
-		}
-		return 0;
-	}
 	
 	//flash red when hit 
 	if(player.isTinted && !justTinted1)
@@ -342,17 +312,14 @@ function update (time, delta)
 	platforms.getFirstNth(nth=2, visible=true).refreshBody();
 	
 	if(platforms.getFirstNth(nth=3, visible=true).x < 100)
-	{//too far left
+	{//too high up
 		move_direction_H= 1;
 	}
 	else if (platforms.getFirstNth(nth=3, visible=true).x > 1300)
-	{// too right
+	{// too low
 		move_direction_H= -1;
 	}
-	platforms.getFirstNth(nth=3, visible=true).setPosition(
-		platforms.getFirstNth(nth=3, visible=true).x+move_direction_H, 
-		(Math.sin(platforms.getFirstNth(nth=3, visible=true).x/20)*30+350));
-		//platforms.getFirstNth(nth=3, visible=true).y);
+	platforms.getFirstNth(nth=3, visible=true).setPosition(platforms.getFirstNth(nth=3, visible=true).x+move_direction_H, platforms.getFirstNth(nth=3, visible=true).y);
 	platforms.getFirstNth(nth=3, visible=true).x+=move_direction_H;
 	platforms.getFirstNth(nth=3, visible=true).refreshBody();
 	
@@ -581,10 +548,7 @@ function isAlive(who)
 		player.setVisible(false);
 		gun.setActive(false);
 		gun.setVisible(false);
-		
-		end.setVisible(true);
-		endLink.setVisible(true);
-		gameOver=true;		
+		player1Respawn();
 		}
 	}
 	else if(who==2)
@@ -595,16 +559,14 @@ function isAlive(who)
 		player2.setVisible(false);
 		gun2.setActive(false);
 		gun2.setVisible(false);
-		
-		end.setVisible(true);
-		endKing.setVisible(true);
-		gameOver=true;
+		player2Respawn();
 		}
 	}
 }
 
 function player1Respawn()
 {
+	
 	player.setPosition(1300,450);
 	player.setActive(true);
 	player.setVisible(true);
@@ -614,7 +576,6 @@ function player1Respawn()
 	player1HPinfo.setText('HP: 100/120');
 	player1HP = 100;
 	katana1.visible=0;
-	player.clearTint();
 }
 
 function player2Respawn()
@@ -628,7 +589,6 @@ function player2Respawn()
 	player2HPinfo.setText('HP: 100/120');
 	player2HP = 100;
 	katana2.visible=0;
-	player2.clearTint();
 }
 
 function hp(change, who)
