@@ -56,7 +56,10 @@ function preload ()
 	);
 
 	this.load.audio('music', 'assets/backgroundSound.mp3');
-	this.load.audio('sound', 'assets/jump.mp3');
+	this.load.audio('jump', 'assets/jump.mp3');
+	this.load.audio('changeW', 'assets/changeW.mp3');
+	this.load.audio('pistolSound', 'assets/pistolSound.mp3');
+	this.load.audio('katanaSound', 'assets/katanaSound.mp3');
 }
 
 function create ()
@@ -69,7 +72,6 @@ function create ()
 	soundTrack.loop = true;
 	soundTrack.play();
 
-	let jumpSound = this.sound.add('sound');
 
 	platforms = this.physics.add.staticGroup();
     platforms.create(700, (700-30), 'ground').setScale(2).refreshBody();
@@ -355,7 +357,8 @@ function update (time, delta)
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
-    player2.setVelocityY(jumpheight*(-1));
+	player2.setVelocityY(jumpheight*(-1));
+	this.sound.play('jump');
 	}
 
 	if (cursors.left.isDown)
@@ -393,6 +396,7 @@ function update (time, delta)
 	if (cursors.up.isDown && player.body.touching.down)
 	{
 	player.setVelocityY(jumpheight*(-1));
+	this.sound.play('jump');
 	}
 	
 	//Attacking
@@ -405,12 +409,14 @@ function update (time, delta)
 			{
 				firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2);
 				lastFired1 = time + 500;
+				this.sound.play('pistolSound');
 			}
 		}
 		else if (katana1.visible)
 		{
 			katanaStrike(1);
 			lastFired1 = time + 700;
+			this.sound.play('katanaSound');
 		}
 	}
 	
@@ -423,12 +429,14 @@ function update (time, delta)
 			{
 				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2);
 				lastFired2 = time + 500;
+				this.sound.play('pistolSound');
 			}
 		}
 		else if (katana2.visible)
 		{
 			katanaStrike(2);
 			lastFired2 = time + 700;
+			this.sound.play('katanaSound');
 		}
 	}
 	
@@ -440,11 +448,13 @@ function update (time, delta)
 		{
 			gun2.setVisible(0);
 			katana2.setVisible(1);
+			this.sound.play('changeW');
 		}
 		else
 		{
 			gun2.setVisible(1);
 			katana2.setVisible(0);
+			this.sound.play('changeW');
 		}
 	}
 	
@@ -455,11 +465,13 @@ function update (time, delta)
 		{
 			gun.setVisible(0);
 			katana1.setVisible(1);
+			this.sound.play('changeW');
 		}
 		else
 		{
 			gun.setVisible(1);
 			katana1.setVisible(0);
+			this.sound.play('changeW');
 		}
 	}
 } 
