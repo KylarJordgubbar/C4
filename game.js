@@ -1,12 +1,7 @@
-var bombs;
-var mouseTouchDown = false;
-
 var config = {
     type: Phaser.WEBGL,
     width: 1400,
     height: 700,
-	//width: 1920,
-    //height: 1080,
     physics: {
         default: 'arcade',
         arcade: {
@@ -34,11 +29,13 @@ var platformVerticalY=300;
 var move_direction_V=1;
 var move_direction_H=1;
 var gameOver=false;
+var player1wepon="pistol", player2wepon="pistol";
 
 function preload ()
 {
 	this.load.image('sky', 'assets/sky.png');
 	this.load.image('gun', 'assets/gun.png');
+	this.load.image('uzi', 'assets/uzi.png');
     this.load.image('bullet', 'assets/bullet1.png');
 	this.load.image('platform', 'assets/platform.png');
 	this.load.image('platformshort', 'assets/platformshort.png');
@@ -111,6 +108,12 @@ function create ()
 
 	katana1.setVisible(0);
 	katana2.setVisible(0);
+	
+	uzi1 = this.add.sprite(player.x, player.y, 'uzi').setScale(0.7);
+	uzi2 = this.add.sprite(player2.x, player2.y, 'uzi').setScale(0.7);
+
+	uzi1.setVisible(0);
+	uzi2.setVisible(0);
 
   //  Player physics properties. Give the little guy a slight bounce
 	player.setBounce(0.2);
@@ -197,6 +200,7 @@ function create ()
 	player.flipX=1;
 	gun.flipX=1;
 	katana1.flipX=1;
+	uzi1.flipx=1;
 
 	//Makes sure the players doesn't fall through the platforms
 
@@ -230,19 +234,26 @@ function create ()
 			this.speed = Phaser.Math.GetSpeed(400, 1);
         },
 
-        fire: function (x, y, direction)
+        fire: function (x, y, direction, scatter, dmg)
         {
 			this.setPosition(x, y);		
             this.setActive(true);
 			this.setVisible(true);
 			this.speed = Phaser.Math.GetSpeed(direction*800, 1);
+			this.speedY=0;
+			if(scatter)
+			{
+				this.speedY = (Math.random()-0.5)/4;//Phaser.Math.GetSpeed((Math.random()*10-5), 1);
+			}
+			this.speed = Phaser.Math.GetSpeed(direction*800, 1);
 			this.flipX=(direction/-2+0.5);
-			this.damage=-10;
+			this.damage=dmg;
         },
 
         update: function (time, delta)
         {
-			this.x += this.speed * delta;		
+			this.x += this.speed * delta;	
+			this.y += this.speedY *delta;
 			if(this.x < 0)
 			{
 				this.setActive(false);
@@ -355,15 +366,6 @@ function update (time, delta)
 	platforms.getFirstNth(nth=3, visible=true).x+=move_direction_H;
 	platforms.getFirstNth(nth=3, visible=true).refreshBody();
 	
-	//health bars
-	
-	//	rect = new Phaser.GameObjects.Rectangle(platforms.getFirstNth(nth=3, visible=true).x, platforms.getFirstNth(nth=3, visible=true).y, 300, 200, 0x0000ff);
-
-    //var graphics = this.add.graphics({ fillStyle: { color: 0x0000ff } });
-
-  //  graphics.fillRectShape(rect);
-	//rect.setPosition);
-	
 	//key inputs
 	if (this.keyA.isDown) {
     player2.setVelocityX(speed*(-1));
@@ -375,6 +377,9 @@ function update (time, delta)
 	
 	katana2.flipX=true;
 	katana2.setPosition(player2.x - 32, player2.y - 0);
+	
+	uzi2.flipX=true;
+	uzi2.setPosition(player2.x - 27, player2.y + 5);
 	}
 	else if (this.keyD.isDown)
 	{
@@ -387,6 +392,9 @@ function update (time, delta)
 	
 	katana2.flipX=false;
 	katana2.setPosition(player2.x + 32, player2.y + 0);
+	
+	uzi2.flipX=false;
+	uzi2.setPosition(player2.x + 27, player2.y + 5);
 	}
 	else
 	{
@@ -395,6 +403,7 @@ function update (time, delta)
 	
 	gun2.setPosition(player2.x + (23*(gun2.flipX-0.5) * -2), player2.y + 5);
 	katana2.setPosition(player2.x  + (32*(gun2.flipX-0.5) * -2), player2.y + 0);
+	uzi2.setPosition(player2.x + (27*(gun2.flipX-0.5) * -2), player2.y + 5);
 	}
 	if (this.keyW.isDown && player2.body.touching.down) 
 	{
@@ -413,6 +422,9 @@ function update (time, delta)
 	
 	katana1.flipX=true;
 	katana1.setPosition(player.x - 32, player.y - 0);
+	
+	uzi1.flipX=true;	
+	uzi1.setPosition(player.x - 27, player.y + 5);
 	}
 	else if (cursors.right.isDown)
 	{
@@ -425,6 +437,9 @@ function update (time, delta)
 	
 	katana1.flipX=false;
 	katana1.setPosition(player.x + 32, player.y - 0);
+	
+	uzi1.flipX=false;	
+	uzi1.setPosition(player.x + 27, player.y + 5);
 	}
 	else
 	{
@@ -433,6 +448,7 @@ function update (time, delta)
 	
 	gun.setPosition(player.x + (23*(gun.flipX-0.5) * -2), player.y + 5);
 	katana1.setPosition(player.x  + (32*(gun.flipX-0.5) * -2), player.y + 0);
+	uzi1.setPosition(player.x + (27*(gun.flipX-0.5) * -2), player.y + 5);
 	}
 	if (cursors.up.isDown && player.body.touching.down)
 	{
@@ -448,7 +464,7 @@ function update (time, delta)
 			firedBullet = bullets.get();
 			if (firedBullet)
 			{
-				firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2);
+				firedBullet.fire(player.x - 30* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2, false, -10);
 				lastFired1 = time + 500;
 				this.sound.play('pistolSound');
 			}
@@ -459,6 +475,16 @@ function update (time, delta)
 			lastFired1 = time + 700;
 			this.sound.play('katanaSound');
 		}
+		else if (uzi1.visible)
+		{
+			firedBullet = bullets.get();
+			if (firedBullet)
+			{
+				firedBullet.fire(player.x - 40* (gun.flipX-0.5) * 2, player.y, (gun.flipX-0.5) * -2, true, -4);
+				lastFired1 = time + 200;
+				this.sound.play('pistolSound');
+			}
+		}
 	}
 	
 	if (this.keySpacebar.isDown && time > lastFired2)
@@ -468,7 +494,7 @@ function update (time, delta)
 			firedBullet = bullets.get();
 			if (firedBullet)
 			{
-				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2);
+				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2, false, -10);
 				lastFired2 = time + 500;
 				this.sound.play('pistolSound');
 			}
@@ -479,6 +505,16 @@ function update (time, delta)
 			lastFired2 = time + 700;
 			this.sound.play('katanaSound');
 		}
+		else if (uzi2.visible)
+		{
+			firedBullet = bullets.get();
+			if (firedBullet)
+			{
+				firedBullet.fire(player2.x - 30* (gun2.flipX-0.5) * 2, player2.y, (gun2.flipX-0.5) * -2, true, -4);
+				lastFired2 = time + 200;
+				this.sound.play('pistolSound');
+			}
+		}
 	}
 	
 	//switch wepon
@@ -486,15 +522,22 @@ function update (time, delta)
 	{
 		this.keyS.reset();
 		if(gun2.visible)
-		{
+		{//gun to katana
 			gun2.setVisible(0);
 			katana2.setVisible(1);
+			
+			this.sound.play('changeW');
+		}
+		else if(katana2.visible)
+		{//katana to uzi
+			uzi2.setVisible(1);
+			katana2.setVisible(0);
 			this.sound.play('changeW');
 		}
 		else
-		{
+		{//uzi to gun
 			gun2.setVisible(1);
-			katana2.setVisible(0);
+			uzi2.setVisible(0);
 			this.sound.play('changeW');
 		}
 	}
@@ -503,15 +546,22 @@ function update (time, delta)
 	{
 		cursors.down.reset();
 		if(gun.visible)
-		{
+		{//gun to katana
 			gun.setVisible(0);
 			katana1.setVisible(1);
+			
+			this.sound.play('changeW');
+		}
+		else if(katana1.visible)
+		{//katana to uzi
+			uzi1.setVisible(1);
+			katana1.setVisible(0);
 			this.sound.play('changeW');
 		}
 		else
-		{
+		{//uzi to gun
 			gun.setVisible(1);
-			katana1.setVisible(0);
+			uzi1.setVisible(0);
 			this.sound.play('changeW');
 		}
 	}
@@ -622,6 +672,7 @@ function player1Respawn()
 	player1HPinfo.setText('HP: 100/120');
 	player1HP = 100;
 	katana1.visible=0;
+	uzi1.setVisible=0;
 	player.clearTint();
 }
 
@@ -636,6 +687,7 @@ function player2Respawn()
 	player2HPinfo.setText('HP: 100/120');
 	player2HP = 100;
 	katana2.visible=0;
+	uzi2.setVisible=0;
 	player2.clearTint();
 }
 
