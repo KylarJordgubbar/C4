@@ -190,7 +190,7 @@ function create ()
 		key: 'strike',
 		frames: [ sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, sa, { key: 'katana', frame: 0 }  ],
 		//frameRate: 1,
-		duration: 1500
+		duration: 1400
 		//nextTick: 10
 	});
 
@@ -614,7 +614,7 @@ function player1Respawn()
 	player1HPinfo.setText('HP: 100/120');
 	player1HP = 100;
 	katana1.visible=0;
-	player1.clearTint();
+	player.clearTint();
 }
 
 function player2Respawn()
