@@ -672,7 +672,7 @@ function player1Respawn()
 	player1HPinfo.setText('HP: 100/120');
 	player1HP = 100;
 	katana1.visible=0;
-	uzi1.setVisible=0;
+	uzi1.visible=0;
 	player.clearTint();
 }
 
@@ -687,7 +687,7 @@ function player2Respawn()
 	player2HPinfo.setText('HP: 100/120');
 	player2HP = 100;
 	katana2.visible=0;
-	uzi2.setVisible=0;
+	uzi2.visible=0;
 	player2.clearTint();
 }
 
